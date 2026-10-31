@@ -1,0 +1,9 @@
+{
+  "id": "saved-inbox",
+  "name": "Лента",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Вставляет фото из ленты в открытую заметку.",
+  "author": "omfg",
+  "isDesktopOnly": false
+}
