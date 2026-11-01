@@ -219,6 +219,7 @@ var Picker = class extends import_obsidian.Modal {
   }
   onOpen() {
     this.modalEl.addClass("lenta-modal");
+    this.setTitle("\u041B\u0435\u043D\u0442\u0430");
     void this.paint();
   }
   onClose() {
@@ -233,9 +234,8 @@ var Picker = class extends import_obsidian.Modal {
     const token = ++this.token;
     const root = this.contentEl;
     root.empty();
-    root.createEl("h2", { text: "\u041B\u0435\u043D\u0442\u0430" });
     const actions = root.createDiv({ cls: "lenta-actions" });
-    const insert = actions.createEl("button", { text: "\u0432\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u043D\u043E\u0432\u044B\u0435" });
+    const insert = actions.createEl("button", { text: "\u0432\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u043D\u043E\u0432\u044B\u0435", cls: "mod-cta" });
     insert.type = "button";
     insert.addEventListener("click", () => void this.insertPending());
     const close = actions.createEl("button", { text: "\u0437\u0430\u043A\u0440\u044B\u0442\u044C" });
@@ -262,22 +262,22 @@ var Picker = class extends import_obsidian.Modal {
   async cell(grid, item, token) {
     const button = grid.createEl("button", { cls: "lenta-cell" });
     button.type = "button";
+    const used = this.plugin.settings.inserted.includes(itemKey(item));
+    if (used) button.addClass("is-used");
     button.addEventListener("click", () => void this.insertOne(item));
+    const shot = button.createDiv({ cls: "lenta-shot" });
+    const when = item.owner ? "\u043E\u0442 " + item.owner + ", " + whenLabel(item.created) : whenLabel(item.created);
+    button.createEl("span", { text: when, cls: "lenta-when" });
+    if (used) shot.createEl("span", { text: "\u0443\u0436\u0435 \u0432\u0441\u0442\u0430\u0432\u043B\u044F\u043B", cls: "lenta-mark" });
     try {
       const bytes = await this.plugin.bytes(item);
       if (token !== this.token) return;
-      const img = button.createEl("img");
+      const img = shot.createEl("img");
       img.alt = item.name;
       img.src = dataUrl(item.mime, bytes);
     } catch (err) {
       if (token !== this.token) return;
-      button.createEl("span", { text: errorText(err) });
-    }
-    if (token !== this.token) return;
-    const when = item.owner ? "\u043E\u0442 " + item.owner + ", " + whenLabel(item.created) : whenLabel(item.created);
-    button.createEl("span", { text: when });
-    if (this.plugin.settings.inserted.includes(itemKey(item))) {
-      button.createEl("span", { text: "\u0443\u0436\u0435 \u0432\u0441\u0442\u0430\u0432\u043B\u044F\u043B", cls: "lenta-mark" });
+      shot.createEl("span", { text: errorText(err), cls: "lenta-fail" });
     }
   }
   async insertPending() {
